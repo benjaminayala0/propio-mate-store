@@ -1,0 +1,6 @@
+# Uploads
+uploads/
+
+# Database
+*.sqlite
+*.db

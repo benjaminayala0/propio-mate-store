@@ -1,0 +1,20 @@
+# Strapi Configuration
+.env
+.env.*
+license.txt
+exports
+.strapi
+dist
+build
+.strapi-updater.json
+.strapi-cloud.json
+
+# Strapi Uploads
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Database
+.tmp
+*.db
+*.sqlite
+*.sqlite3
