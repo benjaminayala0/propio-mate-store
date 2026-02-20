@@ -34,6 +34,7 @@ const app = express();
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.CORS_ORIGIN,
+  "https://propio-mate-store.vercel.app",
   "https://mate-unico-store.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
@@ -44,7 +45,7 @@ app.use(
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
         return callback(null, true);
       }
 
