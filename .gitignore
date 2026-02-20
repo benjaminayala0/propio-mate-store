@@ -42,3 +42,4 @@ coverage/
 */dist/
 */build/
 public/uploads/
+response.json
