@@ -1,80 +1,143 @@
--- Script de inicialización para tablas de negocio (Mate Único)
--- Ejecutar este script en la base de datos PostgreSQL para crear la estructura necesaria
 
--- 1. Tabla de Usuarios (Clientes)
-CREATE TABLE IF NOT EXISTS usuarios (
+-- 1. Tablas Base (Sin dependencias)
+CREATE TABLE IF NOT EXISTS public.usuarios (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(50),
-    apellido VARCHAR(50),
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255), -- Puede ser null si entra con Google
-    foto VARCHAR(255),
-    google_id VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    google_id character varying(255),
+    nombre character varying(100),
+    apellido character varying(100),
+    email character varying(150),
+    foto character varying(255),
+    bloqueado boolean DEFAULT false,
+    confirmado boolean DEFAULT false,
+    provider character varying(255),
+    created_at timestamp(6) without time zone DEFAULT now(),
+    updated_at timestamp(6) without time zone DEFAULT now()
 );
 
--- 2. Tabla de Domicilios
-CREATE TABLE IF NOT EXISTS domicilio (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER REFERENCES usuarios(id),
-    calle VARCHAR(100),
-    numero VARCHAR(20),
-    ciudad VARCHAR(50),
-    provincia VARCHAR(50),
-    pais VARCHAR(50),
-    codigo_postal VARCHAR(20),
-    telefono VARCHAR(50)
+CREATE TABLE IF NOT EXISTS public.ciudad (
+    codigo_postal INTEGER NOT NULL,
+    nombre character varying(50) NOT NULL,
+    PRIMARY KEY (codigo_postal)
 );
 
--- 3. Tabla de Carritos
-CREATE TABLE IF NOT EXISTS carrito (
+CREATE TABLE IF NOT EXISTS public.cupons (
     id SERIAL PRIMARY KEY,
-    cliente_id INTEGER REFERENCES usuarios(id),
-    precio_total DECIMAL(10, 2) DEFAULT 0,
-    estado VARCHAR(20) DEFAULT 'activo' -- 'activo', 'cerrado'
+    codigo character varying(255),
+    porcentaje integer,
+    activo boolean DEFAULT true,
+    document_id character varying(255)
 );
 
--- 4. Items del Carrito
--- Relaciona el carrito con los productos (IDs de Strapi)
-CREATE TABLE IF NOT EXISTS item_carrito (
+CREATE TABLE IF NOT EXISTS public.productos (
     id SERIAL PRIMARY KEY,
-    carrito_id INTEGER REFERENCES carrito(id) ON DELETE CASCADE,
-    producto_id INTEGER NOT NULL, -- ID que viene de Strapi
-    cantidad INTEGER DEFAULT 1,
-    precio_unitario DECIMAL(10, 2),
-    color VARCHAR(50),
-    grabado_texto VARCHAR(20),
-    costo_grabado DECIMAL(10, 2) DEFAULT 0
+    nombre character varying(255),
+    descripcion text,
+    precio bigint,
+    matecolor character varying(255),
+    stock integer,
+    esta_activo boolean DEFAULT true,
+    esnew boolean,
+    congrabado boolean,
+    material character varying(255),
+    tipocombo character varying(255),
+    document_id character varying(255),
+    created_at timestamp(6) without time zone,
+    updated_at timestamp(6) without time zone
 );
 
--- 5. Orden de Compra (Cabecera)
-CREATE TABLE IF NOT EXISTS orden_compra (
+CREATE TABLE IF NOT EXISTS public.imagen (
     id SERIAL PRIMARY KEY,
-    cliente_id INTEGER REFERENCES usuarios(id),
-    carrito_id INTEGER, -- Referencia histórica
-    monto_total DECIMAL(10, 2) NOT NULL,
-    estado_pago VARCHAR(20) DEFAULT 'pendiente', -- 'pendiente', 'aprobado', 'rechazado'
-    estado_pedido VARCHAR(20) DEFAULT 'pendiente',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    pago_id VARCHAR(100), -- ID de transacción de MercadoPago
-    
-    -- Datos de envío históricos (snapshot)
-    direccion_envio VARCHAR(200),
-    ciudad_envio VARCHAR(100),
-    provincia_envio VARCHAR(100),
-    pais_envio VARCHAR(100),
-    codigo_postal_envio VARCHAR(20),
-    domicilio_id INTEGER
+    url character varying(250) NOT NULL,
+    orden integer NOT NULL
 );
 
--- 6. Líneas de Compra (Detalle de la orden)
-CREATE TABLE IF NOT EXISTS linea_compra (
+-- 2. Tablas con Dependencias Simples
+CREATE TABLE IF NOT EXISTS public.domicilio (
     id SERIAL PRIMARY KEY,
-    orden_id INTEGER REFERENCES orden_compra(id),
-    producto_id INTEGER NOT NULL,
-    cantidad INTEGER,
-    precio_unitario DECIMAL(10, 2),
-    grabado_texto VARCHAR(20),
-    costo_grabado DECIMAL(10, 2) DEFAULT 0
+    usuario_id integer REFERENCES public.usuarios(id),
+    calle character varying(50),
+    numero character varying(20),
+    ciudad character varying(100),
+    provincia character varying(100),
+    pais character varying(100),
+    codigo_postal character varying(20),
+    telefono character varying(20),
+    creado_en timestamp without time zone DEFAULT now()
 );
 
+CREATE TYPE public.estado_carrito AS ENUM ('activo', 'abandonado', 'cerrado', 'inactivo');
+
+CREATE TABLE IF NOT EXISTS public.carrito (
+    id SERIAL PRIMARY KEY,
+    cliente_id integer REFERENCES public.usuarios(id),
+    precio_total numeric(10,2) DEFAULT 0 NOT NULL,
+    estado public.estado_carrito DEFAULT 'activo'::public.estado_carrito NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.resena (
+    id SERIAL PRIMARY KEY,
+    cliente_id integer REFERENCES public.usuarios(id),
+    producto_id integer REFERENCES public.productos(id),
+    calificacion integer NOT NULL,
+    comentario character varying(300),
+    permitido boolean DEFAULT false,
+    fecha date NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.ingreso (
+    id SERIAL PRIMARY KEY,
+    producto_id integer REFERENCES public.productos(id),
+    cantidad_prod integer NOT NULL,
+    fecha date NOT NULL
+);
+
+-- 3. Tablas Complejas (Relaciones)
+CREATE TABLE IF NOT EXISTS public.item_carrito (
+    id SERIAL PRIMARY KEY,
+    carrito_id integer REFERENCES public.carrito(id) ON DELETE CASCADE,
+    producto_id integer REFERENCES public.productos(id),
+    cantidad integer NOT NULL,
+    precio_unitario numeric(10,2),
+    grabado_texto character varying(120),
+    costo_grabado numeric(10,2) DEFAULT 0,
+    color character varying(50)
+);
+
+CREATE TYPE public.estado_pago AS ENUM ('pendiente', 'aprobado', 'rechazado', 'pagado');
+CREATE TYPE public.estado_envio AS ENUM ('pendiente', 'en camino', 'entregado', 'cancelado');
+
+CREATE TABLE IF NOT EXISTS public.orden_compra (
+    id SERIAL PRIMARY KEY,
+    cliente_id integer REFERENCES public.usuarios(id),
+    carrito_id integer,
+    monto_total numeric(10,2) NOT NULL,
+    estado_pago public.estado_pago DEFAULT 'pendiente'::public.estado_pago NOT NULL,
+    estado_pedido public.estado_envio DEFAULT 'pendiente'::public.estado_envio NOT NULL,
+    fecha_creacion date NOT NULL,
+    pago_id text,
+    direccion_envio character varying(200),
+    ciudad_envio character varying(100),
+    provincia_envio character varying(100),
+    pais_envio character varying(100),
+    codigo_postal_envio character varying(20),
+    domicilio_id integer
+);
+
+CREATE TABLE IF NOT EXISTS public.linea_compra (
+    id SERIAL PRIMARY KEY,
+    orden_id integer REFERENCES public.orden_compra(id),
+    producto_id integer REFERENCES public.productos(id),
+    cantidad integer NOT NULL,
+    precio_unitario numeric(10,2),
+    grabado_texto character varying(120),
+    costo_grabado numeric(10,2)
+);
+
+CREATE TABLE IF NOT EXISTS public.cuponusados (
+    id SERIAL PRIMARY KEY,
+    cliente_id integer REFERENCES public.usuarios(id),
+    cupon_id integer REFERENCES public.cupons(id),
+    pedido_id integer,
+    document_id character varying(255),
+    created_at timestamp(6) without time zone DEFAULT now()
+);

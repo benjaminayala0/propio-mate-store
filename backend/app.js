@@ -33,7 +33,8 @@ const app = express();
 // CORS CONFIG 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  process.env.BACKEND_URL,
+  process.env.CORS_ORIGIN,
+  "https://mate-unico-store.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
 ];
@@ -41,7 +42,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); 
+      if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);

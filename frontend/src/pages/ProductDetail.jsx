@@ -96,14 +96,16 @@ export default function ProductDetail() {
       return `https://ui-avatars.com/api/?name=${nombre}&background=random&color=fff&size=128`;
     }
     if (foto.includes("localhost:3000")) {
-       const cleanPath = foto.split("3000")[1];
-       return `${import.meta.env.VITE_API_URL}${cleanPath}`;
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const cleanPath = foto.split("3000")[1];
+      return `${API_URL}${cleanPath}`;
     }
     if (foto.startsWith("http")) return foto;
     const path = foto.startsWith('/') ? foto : `/${foto}`;
-    return `${import.meta.env.VITE_API_URL}${path}`;
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    return `${API_URL}${path}`;
   };
-  
+
   // Cargar usuario
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -190,13 +192,13 @@ export default function ProductDetail() {
       });
 
       setAddedSuccess(true);
-      setTimeout(() => setAddedSuccess(false), 2000); 
+      setTimeout(() => setAddedSuccess(false), 2000);
     } catch (err) {
       console.error("Error agregando al carrito:", err);
       showMsg("Hubo un problema al agregar al carrito", "error");
     }
   };
-  
+
   // Enviar reseña
   const handleSubmitReview = async (e) => {
     e.preventDefault();
@@ -250,12 +252,11 @@ export default function ProductDetail() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 relative">
-      
+
       {/* Mensaje Global */}
       {msg && (
-        <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-8 py-3 rounded shadow-lg text-white font-semibold text-center transition-all duration-300 ${
-            msgType === "error" ? "bg-red-600" : "bg-green-600"
-        }`}>
+        <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-8 py-3 rounded shadow-lg text-white font-semibold text-center transition-all duration-300 ${msgType === "error" ? "bg-red-600" : "bg-green-600"
+          }`}>
           {msg}
         </div>
       )}
@@ -357,13 +358,13 @@ export default function ProductDetail() {
 
             {/* INDICADOR DE STOCK */}
             {producto.stock === 0 ? (
-               <p className="text-red-600 mt-2 font-bold">● Sin stock momentáneamente</p>
+              <p className="text-red-600 mt-2 font-bold">● Sin stock momentáneamente</p>
             ) : producto.stock === 1 ? (
-               <p className="text-red-600 mt-2 font-bold animate-pulse">● ¡Última unidad disponible!</p>
+              <p className="text-red-600 mt-2 font-bold animate-pulse">● ¡Última unidad disponible!</p>
             ) : producto.stock <= 5 ? (
-               <p className="text-orange-500 mt-2 font-semibold">● ¡Quedan pocas unidades! ({producto.stock})</p>
+              <p className="text-orange-500 mt-2 font-semibold">● ¡Quedan pocas unidades! ({producto.stock})</p>
             ) : (
-               <p className="text-green-600 mt-2 font-medium">● En stock ({producto.stock} disponibles)</p>
+              <p className="text-green-600 mt-2 font-medium">● En stock ({producto.stock} disponibles)</p>
             )}
           </div>
 
@@ -407,7 +408,7 @@ export default function ProductDetail() {
             </>
           ) : (
             <button
-              onClick={() => showMsg("¡Pronto repondremos stock! Te avisaremos.", "info")} 
+              onClick={() => showMsg("¡Pronto repondremos stock! Te avisaremos.", "info")}
               className="mt-4 w-full md:w-72 px-6 py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed hover:bg-gray-500 transition"
             >
               ¿Avísame cuando haya stock?
@@ -490,7 +491,7 @@ export default function ProductDetail() {
             >
               <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                 <img
-                  src={buildUserPhoto(r.foto,`${r.nombre}+${r.apellido}`)}
+                  src={buildUserPhoto(r.foto, `${r.nombre}+${r.apellido}`)}
                   alt={r.nombre}
                   className="w-full h-full object-cover"
                 />

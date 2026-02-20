@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom"; 
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import axios from "axios";
 
@@ -10,11 +10,11 @@ export default function Products() {
 
   // URL params
   const location = useLocation();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
 
   // Params de URL
-  const searchMode = params.get("search"); 
+  const searchMode = params.get("search");
   const comboMode = params.get("combo") === "true";
   const newMode = params.get("new") === "true";
 
@@ -42,15 +42,16 @@ export default function Products() {
   useEffect(() => {
     async function cargarProductos() {
       try {
-        const res = await axios.get("http://localhost:3000/api/products");
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+        const res = await axios.get(`${API_URL}/api/products`);
 
         const items = await Promise.all(
           res.data.map(async (item) => {
             let avg = 0;
             try {
-              const r = await axios.get(`http://localhost:3000/api/reviews/product/${item.id}`);
+              const r = await axios.get(`${API_URL}/api/reviews/product/${item.id}`);
               avg = r.data.averageRating ?? 0;
-            } catch {}
+            } catch { }
 
             return {
               id: item.id,
@@ -106,7 +107,7 @@ export default function Products() {
 
     /* FILTRO BUSQUEDA (Desde la URL) */
     if (searchMode) {
-      res = res.filter((p) => 
+      res = res.filter((p) =>
         p.nombre.toLowerCase().includes(searchMode.toLowerCase())
       );
     }
@@ -147,8 +148,8 @@ export default function Products() {
   // Manejar búsqueda al presionar Enter
   const handleSearchSubmit = (e) => {
     if (e.key === "Enter") {
-        // Actualizamos la URL con el término de búsqueda
-        navigate(`/productos?search=${encodeURIComponent(localSearch)}`);
+      // Actualizamos la URL con el término de búsqueda
+      navigate(`/productos?search=${encodeURIComponent(localSearch)}`);
     }
   };
 
@@ -176,15 +177,15 @@ export default function Products() {
   // RENDER
   return (
     <div className="w-full min-h-screen bg-white px-8 py-8">
-      
+
       {/* Migas de Pan */}
       <nav className="text-sm text-gray-600 mb-6 flex items-center gap-2">
         <Link to="/" className="hover:underline">Inicio</Link>
         <span>›</span>
 
         <button
-        onClick={limpiarFiltros}
-        className="text-gray-800 font-medium hover:underline focus:outline-none"
+          onClick={limpiarFiltros}
+          className="text-gray-800 font-medium hover:underline focus:outline-none"
         >
           Productos
         </button>
@@ -193,7 +194,7 @@ export default function Products() {
       </nav>
 
       <div className="flex gap-10">
-        
+
         {/* SIDEBAR (Filtros) */}
         <aside className="w-52 flex-shrink-0 text-gray-900">
           {/* ... (Tus filtros de checkbox siguen igual) ... */}
@@ -230,23 +231,23 @@ export default function Products() {
 
         {/* LISTADO (CONTENIDO) */}
         <section className="flex-1 flex flex-col min-h-[600px]">
-          
+
           {/* 🔥 HEADER DE PRODUCTOS: Buscador + Ordenar */}
           <div className="flex flex-col items-end gap-3 mb-6">
-            
+
             {/* Nuevo Buscador en Página */}
             <div className="relative w-full sm:w-48">
-                <input 
-                    type="text" 
-                    placeholder="Buscar mate..." 
-                    className="border border-gray-300 rounded px-3 py-1 pl-8 text-sm w-56 focus:outline-none w-full sm:w-48"
-                    value={localSearch}
-                    onChange={(e) => setLocalSearch(e.target.value)}
-                    onKeyDown={handleSearchSubmit}
-                />
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+              <input
+                type="text"
+                placeholder="Buscar mate..."
+                className="border border-gray-300 rounded px-3 py-1 pl-8 text-sm w-56 focus:outline-none w-full sm:w-48"
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                onKeyDown={handleSearchSubmit}
+              />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
 
             {/* Select Ordenar */}
@@ -277,14 +278,14 @@ export default function Products() {
           ) : (
             // EMPTY STATE (Sin resultados)
             <div className="flex flex-1 items-center justify-center mt-4">
-               <div className="w-full max-w-md flex flex-col items-center py-12 text-center bg-gray-50 rounded-lg border border-gray-100">
-                  <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No encontramos productos</h3>
-                  <p className="text-gray-500 mb-6">Intenta cambiando los filtros o buscando otra categoría.</p>
-                  <button onClick={limpiarFiltros} className="px-6 py-2 bg-[#8B4513] text-white rounded hover:bg-[#6F370F] transition-colors shadow-sm">
-                     Limpiar filtros
-                  </button>
-               </div>
+              <div className="w-full max-w-md flex flex-col items-center py-12 text-center bg-gray-50 rounded-lg border border-gray-100">
+                <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No encontramos productos</h3>
+                <p className="text-gray-500 mb-6">Intenta cambiando los filtros o buscando otra categoría.</p>
+                <button onClick={limpiarFiltros} className="px-6 py-2 bg-[#8B4513] text-white rounded hover:bg-[#6F370F] transition-colors shadow-sm">
+                  Limpiar filtros
+                </button>
+              </div>
             </div>
           )}
         </section>

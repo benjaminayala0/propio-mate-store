@@ -5,7 +5,8 @@ export async function signInWithGoogle(response) {
     const tokenGoogle = response.credential;
 
     // Enviar el token de Google al backend
-    const res = await axios.post("http://localhost:3000/api/auth/google", {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const res = await axios.post(`${API_URL}/api/auth/google`, {
       tokenGoogle,
     });
 
