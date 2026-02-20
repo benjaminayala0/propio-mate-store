@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 
 // Páginas
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
@@ -53,14 +53,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/checkout" element={<Checkout />} />
 
             {/* REDIRECCIÓN A MERCADOPAGO */}
-             <Route path="/checkout/redirect" element={<RedirectMP />} />
+            <Route path="/checkout/redirect" element={<RedirectMP />} />
 
             {/* ÉXITO DE PAGO */}
             <Route path="/checkout/success" element={<PaymentSuccess />} />
 
             {/* FALLA DE PAGO */}
             <Route path="/checkout/failure" element={<PaymentFailure />} />
-            
+
             {/* LOGIN */}
             <Route path="login" element={<Login />} />
 
@@ -74,8 +74,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="historial" element={<Historial />} />
 
             {/* SEGUIMIENTO DE ENVÍO */}
-           <Route path="/seguimiento/:id" element={<Seguimiento />} />
-           
+            <Route path="/seguimiento/:id" element={<Seguimiento />} />
+
           </Route>
 
         </Routes>
