@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const STRAPI_URL = "http://localhost:1337/api/productos";
+const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337/api/productos";
+const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://localhost:1337";
 
 // GET ALL PRODUCTS
 
@@ -12,7 +13,8 @@ export const getAllProducts = async (req, res) => {
     const productos = productosRaw.map((item) => {
       let imagen = null;
       if (Array.isArray(item.imagen) && item.imagen.length > 0) {
-        imagen = "http://localhost:1337" + item.imagen[0].url;
+        const rawUrl = item.imagen[0].url;
+        imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
       }
 
       return {
@@ -27,7 +29,7 @@ export const getAllProducts = async (req, res) => {
         esta_activo: item.esta_activo,
         stock: item.stock,
         permite_grabado: item.congrabado,
-        imagen, 
+        imagen,
       };
     });
 
@@ -63,7 +65,8 @@ export const getProductById = async (req, res) => {
 
     let imagen = null;
     if (Array.isArray(item.imagen) && item.imagen.length > 0) {
-      imagen = "http://localhost:1337" + item.imagen[0].url;
+      const rawUrl = item.imagen[0].url;
+      imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
     }
 
     const producto = {
@@ -79,7 +82,7 @@ export const getProductById = async (req, res) => {
       stock: item.stock,
       permite_grabado: item.congrabado,
       imagen,
-      relacionados: item.variantes_relacionadas || [], 
+      relacionados: item.variantes_relacionadas || [],
     };
 
     res.json(producto);
