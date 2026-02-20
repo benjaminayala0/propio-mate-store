@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import heroImg from "../assets/home/hero-mates.jpeg";
 import hero1Img from "../assets/home/hero-mates1.jpeg";
-import hero2Img from "../assets/home/hero-mates2.jpeg";
+import hero2Img from "../assets/home/Hero-mates2.jpeg";
 import combosImg from "../assets/home/combos.jpeg";
 import productosImg from "../assets/home/productos.jpeg";
 import newsletterBg from "../assets/home/newsletter-bg.jpeg";
@@ -76,7 +76,7 @@ export default function Home() {
               const r = await fetch(`http://localhost:3000/api/reviews/product/${item.id}`);
               const rData = await r.json();
               avg = rData.averageRating || 0;
-            } catch {}
+            } catch { }
 
             return {
               id: item.id,
@@ -84,7 +84,7 @@ export default function Home() {
               precio: item.precio,
               esNuevo: item.esnew,
               imagen: item.imagen,
-              rating: avg, 
+              rating: avg,
               tipocombo: item.tipocombo,
             };
           })
@@ -160,11 +160,10 @@ export default function Home() {
             <div
               key={idx}
               onClick={() => goToSlide(idx)}
-              className={`cursor-pointer rounded-full ${
-                currentIndex === idx
+              className={`cursor-pointer rounded-full ${currentIndex === idx
                   ? "bg-[#8B5E3C] w-8 h-2"
                   : "bg-gray-300 w-2 h-2"
-              }`}
+                }`}
             ></div>
           ))}
         </div>
@@ -244,8 +243,8 @@ export default function Home() {
               <div className="mt-3 space-y-1">
                 {/* Rating Dinámico */}
                 <div className="flex items-center gap-2">
-                   <Stars value={product.rating} />
-                   <span className="text-xs text-gray-500">({product.rating?.toFixed(1) || 0})</span>
+                  <Stars value={product.rating} />
+                  <span className="text-xs text-gray-500">({product.rating?.toFixed(1) || 0})</span>
                 </div>
 
                 <h3 className="text-sm font-semibold text-gray-900">{product.nombre}</h3>
