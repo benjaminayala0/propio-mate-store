@@ -52,7 +52,7 @@ export default function CompletarPerfil() {
 
   const handleCancel = () => {
     // si cancela, lo mandamos a "Mi Cuenta"
-    navigate("/perfil"); 
+    navigate("/perfil");
   };
 
   const handleSubmit = async (e) => {
@@ -65,8 +65,9 @@ export default function CompletarPerfil() {
 
       const token = localStorage.getItem("token");
 
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const res = await axios.put(
-        `http://localhost:3000/api/usuarios/${user.id}`,
+        `${API_URL}/api/usuarios/${user.id}`,
         form,
         {
           headers: {

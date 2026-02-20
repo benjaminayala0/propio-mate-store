@@ -62,7 +62,8 @@ export default function Home() {
     async function loadNewProducts() {
       try {
         //  VITE_API_URL en lugar de localhost fijo
-        const res = await fetch(`http://localhost:3000/api/products`);
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+        const res = await fetch(`${API_URL}/api/products`);
         const data = await res.json();
 
         // 1. Filtramos primero los que son "Nuevos"
@@ -73,7 +74,8 @@ export default function Home() {
           candidatos.map(async (item) => {
             let avg = 0;
             try {
-              const r = await fetch(`http://localhost:3000/api/reviews/product/${item.id}`);
+              const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+              const r = await fetch(`${API_URL}/api/reviews/product/${item.id}`);
               const rData = await r.json();
               avg = rData.averageRating || 0;
             } catch { }
@@ -161,8 +163,8 @@ export default function Home() {
               key={idx}
               onClick={() => goToSlide(idx)}
               className={`cursor-pointer rounded-full ${currentIndex === idx
-                  ? "bg-[#8B5E3C] w-8 h-2"
-                  : "bg-gray-300 w-2 h-2"
+                ? "bg-[#8B5E3C] w-8 h-2"
+                : "bg-gray-300 w-2 h-2"
                 }`}
             ></div>
           ))}

@@ -39,14 +39,15 @@ export const getOrderById = async (req, res) => {
     // C) Cargar imágenes desde Strapi 
     await Promise.all(items.map(async (item) => {
       try {
-        // Usamos localhost directo porque esto corre en el servidor
-        const url = `http://127.0.0.1:1337/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
+        const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
+        const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
         const response = await fetch(url);
         const data = await response.json();
         const imagenData = data?.data?.[0]?.imagen;
 
         if (Array.isArray(imagenData) && imagenData.length > 0) {
-          item.imagen = "http://localhost:1337" + imagenData[0].url;
+          const rawUrl = imagenData[0].url;
+          item.imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
         } else {
           item.imagen = null;
         }
@@ -123,18 +124,20 @@ export const getHistorialUsuario = async (req, res) => {
       // En lugar de esperar una por una, las pedimos todas juntas a Strapi
       await Promise.all(items.map(async (item) => {
         try {
-            const url = `http://127.0.0.1:1337/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
-            const response = await fetch(url);
-            const data = await response.json();
-            const imagenData = data?.data?.[0]?.imagen;
-    
-            if (Array.isArray(imagenData) && imagenData.length > 0) {
-              item.imagen = "http://localhost:1337" + imagenData[0].url;
-            } else {
-              item.imagen = null;
-            }
-        } catch(e) { 
-            item.imagen = null; 
+          const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
+          const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
+          const response = await fetch(url);
+          const data = await response.json();
+          const imagenData = data?.data?.[0]?.imagen;
+
+          if (Array.isArray(imagenData) && imagenData.length > 0) {
+            const rawUrl = imagenData[0].url;
+            item.imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
+          } else {
+            item.imagen = null;
+          }
+        } catch (e) {
+          item.imagen = null;
         }
       }));
 

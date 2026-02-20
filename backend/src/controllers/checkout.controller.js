@@ -385,12 +385,14 @@ export const webhookMercadoPago = async (req, res) => {
             // items con FOTOS
             for (const item of itemsValidos) {
               try {
-                const url = `http://127.0.0.1:1337/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
+                const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
+                const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
                 const response = await fetch(url);
                 const data = await response.json();
                 const imagenData = data?.data?.[0]?.imagen;
                 if (Array.isArray(imagenData) && imagenData.length > 0) {
-                  item.imagen = "http://localhost:1337" + imagenData[0].url;
+                  const rawUrl = imagenData[0].url;
+                  item.imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
                 }
               } catch (e) { console.log("Error foto email", e.message); }
             }

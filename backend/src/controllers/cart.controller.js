@@ -79,16 +79,16 @@ export const getCart = async (req, res) => {
     // Cargar imagen de cada producto desde Strapi
     for (const item of items) {
       try {
-        // Usamos 127.0.0.1 para asegurar conexión local desde el backend
-        const url = `http://127.0.0.1:1337/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
+        const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
+        const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
         const response = await fetch(url);
         const data = await response.json();
 
         const imagenData = data?.data?.[0]?.imagen;
 
         if (Array.isArray(imagenData) && imagenData.length > 0) {
-          // Devolvemos la URL para el frontend
-          item.imagen = "http://localhost:1337" + imagenData[0].url;
+          const rawUrl = imagenData[0].url;
+          item.imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
         } else {
           item.imagen = null;
         }
