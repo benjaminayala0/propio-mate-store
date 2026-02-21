@@ -10,7 +10,9 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -88,8 +90,8 @@ export const enviarCorreoCompra = async (emailUsuario, ordenId, items, total) =>
       attachments: [
         {
           filename: 'logo-mate-unico.png',
-          path: path.join(__dirname, '../assets/logo-mate-unico.png'), 
-          cid: 'logo_default' 
+          path: path.join(__dirname, '../assets/logo-mate-unico.png'),
+          cid: 'logo_default'
         }
       ]
     };
