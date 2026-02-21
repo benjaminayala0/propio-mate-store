@@ -1,6 +1,6 @@
 import { db } from "../db.js";
 import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
-import { enviarCorreoCompra } from "../helpers/mailer.js";
+import { enviarCorreoResend as enviarCorreoCompra } from "../helpers/mailer.js";
 import crypto from "node:crypto";
 
 // MERCADO PAGO
