@@ -50,18 +50,23 @@ export const getProductById = async (req, res) => {
     const id = req.params.id;
 
     const response = await axios.get(
-      `${STRAPI_URL}?filters[id][$eq]=${id}&populate[0]=imagen&populate[1]=variantes_relacionadas`
+      `${STRAPI_URL}?filters[id][$eq]=${id}&populate=*`,
+      { timeout: 15000 } // Give Strapi time to wake up if cold
     );
 
-    const items = response.data.data;
+    const items = response.data?.data;
 
-    if (!items || items.length === 0)
+    if (!items || items.length === 0) {
+      console.log(`❌ Producto ${id} no encontrado en Strapi.`);
       return res.status(404).json({ error: "Producto no encontrado" });
+    }
 
     const item = items[0];
 
-    if (!item.esta_activo)
+    if (!item.esta_activo) {
+      console.log(`❌ Producto ${id} encontrado pero no está activo.`);
       return res.status(404).json({ error: "Producto no disponible" });
+    }
 
     let imagen = null;
     if (Array.isArray(item.imagen) && item.imagen.length > 0) {
