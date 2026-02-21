@@ -239,27 +239,28 @@ export const crearCheckout = async (req, res) => {
       });
     }
 
-    const preference = new Preference(mpClient);
-
-    const mpRes = await preference.create({
+    const mpPayload = {
       body: {
         items: itemsMP,
-
         metadata: {
           cliente_id: clienteId,
           cupon_id: cuponId || null
         },
-
         back_urls: {
-          success: `${process.env.FRONTEND_URL}/checkout/success`,
-          failure: `${process.env.FRONTEND_URL}/checkout/failure`,
-          pending: `${process.env.FRONTEND_URL}/checkout/pending`,
+          success: `${(process.env.FRONTEND_URL || "https://localhost").trim()}/checkout/success`,
+          failure: `${(process.env.FRONTEND_URL || "https://localhost").trim()}/checkout/failure`,
+          pending: `${(process.env.FRONTEND_URL || "https://localhost").trim()}/checkout/pending`,
         },
         auto_return: "approved",
         external_reference: String(orden.id),
-        notification_url: `${process.env.BACKEND_URL}/api/checkout/webhook`,
+        notification_url: `${(process.env.BACKEND_URL || "https://localhost").trim()}/api/checkout/webhook`,
       },
-    });
+    };
+
+    console.log("MERCADOPAGO PAYLOAD:", JSON.stringify(mpPayload, null, 2));
+
+    const preference = new Preference(mpClient);
+    const mpRes = await preference.create(mpPayload);
 
     return res.json({
       ok: true,
@@ -267,8 +268,9 @@ export const crearCheckout = async (req, res) => {
       init_point: mpRes.init_point,
     });
   } catch (err) {
-    console.error("Error creando checkout:", err);
-    res.status(500).json({ error: "Error creando checkout" });
+    console.error("🔥 Error crítico de MercadoPago:", err);
+    if (err.cause) console.error("Detalles MP:", JSON.stringify(err.cause, null, 2));
+    res.status(500).json({ error: "Error creando checkout", details: err });
   }
 };
 
