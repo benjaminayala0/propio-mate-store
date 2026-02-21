@@ -57,10 +57,10 @@ async function getCartItems(carritoId) {
 
 export const crearCheckout = async (req, res) => {
   try {
-    const { clienteId, domicilioId, nuevaDireccion, cuponId } = req.body;
+    const { clienteId, cuponId, domicilioId, nuevaDireccion, esDemo } = req.body;
 
     if (!clienteId)
-      return res.status(400).json({ error: "clienteId es obligatorio" });
+      return res.status(400).json({ error: "Falta cliente_id" });
 
     if (!domicilioId && !nuevaDireccion)
       return res
@@ -169,15 +169,16 @@ export const crearCheckout = async (req, res) => {
           pais_envio, codigo_postal_envio, domicilio_id, carrito_id
         )
         VALUES (
-          $1, 'pendiente', NULL, 'pendiente', CURRENT_TIMESTAMP,
-          $2, NULL,
-          $3, $4, $5,
-          $6, $7, $8, $9
+          $1, $2, NULL, 'pendiente', CURRENT_TIMESTAMP,
+          $3, NULL,
+          $4, $5, $6,
+          $7, $8, $9, $10
         )
         RETURNING *`,
       {
         bind: [
           montoTotal,
+          esDemo ? 'aprobado' : 'pendiente',
           clienteId,
           direccionEnvio,
           domicilioRow.ciudad,
@@ -209,6 +210,37 @@ export const crearCheckout = async (req, res) => {
           ],
         }
       );
+    }
+
+    // --- MODO DEMO: SIMULAR COMPRA EXITOSA Y FLUJO DE NEGOCIO ---
+    if (esDemo) {
+      // 1. Descontar stock
+      for (const item of itemsValidos) {
+        await db.query(
+          `UPDATE productos SET stock = stock - $1 WHERE id = $2`,
+          { bind: [item.cantidad, item.producto_id] }
+        );
+      }
+
+      // 2. Registrar Cupón usado (si existe)
+      if (cuponId) {
+        try {
+          const documentId = crypto.randomUUID();
+          await db.query(
+            `INSERT INTO cuponusados (cliente_id, cupon_id, pedido_id, document_id) VALUES ($1, $2, $3, $4)`,
+            { bind: [clienteId, cuponId, orden.id, documentId] }
+          );
+        } catch (err) { console.error("Error guardando cupón demo:", err); }
+      }
+
+      // 3. Cerrar el carrito actual
+      await db.query(`UPDATE carrito SET estado = 'cerrado' WHERE id = $1`, { bind: [carrito.id] });
+
+      return res.json({
+        ok: true,
+        orderId: orden.id,
+        init_point: `${(process.env.FRONTEND_URL || "http://localhost:5173").trim()}/checkout/success?orderId=${orden.id}`,
+      });
     }
 
     // 5) MERCADO PAGO
