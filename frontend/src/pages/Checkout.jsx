@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import { useCart } from "../context/CartContext"; 
+import { useCart } from "../context/CartContext";
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -17,6 +17,9 @@ export default function Checkout() {
   // "perfil" , "guardada" , "nueva"
   const [selectedMode, setSelectedMode] = useState("perfil");
 
+  // "mercadopago" | "demo"
+  const [paymentMethod, setPaymentMethod] = useState("mercadopago");
+
   const [newAddress, setNewAddress] = useState({
     calle: "",
     numero: "",
@@ -30,7 +33,7 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔥 1. LÓGICA DE STOCK Y TOTALES REALES
+  //  1. LÓGICA DE STOCK Y TOTALES REALES
   const safeCart = Array.isArray(cart) ? cart : [];
 
   // Filtramos qué productos SÍ se pueden vender
@@ -39,18 +42,18 @@ export default function Checkout() {
 
   // Recalculamos el subtotal solo con los válidos
   const subtotalReal = productosValidos.reduce((acc, item) => {
-     const precio = Number(item.precio_unitario) + Number(item.costo_grabado);
-     return acc + (precio * item.cantidad);
+    const precio = Number(item.precio_unitario) + Number(item.costo_grabado);
+    return acc + (precio * item.cantidad);
   }, 0);
 
   // Cálculos de Descuento y Envío sobre el subtotal REAL
   const ENVIO_GRATIS_LIMITE = 150000;
   const COSTO_ENVIO_FIJO = 10000;
-  
+
   const montoDescuento = coupon ? (subtotalReal * coupon.porcentaje) / 100 : 0;
   const isFreeShipping = subtotalReal >= ENVIO_GRATIS_LIMITE;
   const costoEnvio = isFreeShipping ? 0 : COSTO_ENVIO_FIJO;
-  
+
   // Total Final a cobrar
   const totalFinal = Math.max(0, subtotalReal - montoDescuento + costoEnvio);
 
@@ -145,7 +148,7 @@ export default function Checkout() {
   };
 
   // ENVIAR CHECKOUT
-  
+
   const handleSubmit = async () => {
     try {
       setSubmitting(true);
@@ -153,9 +156,9 @@ export default function Checkout() {
 
       // Validación de stock antes de enviar
       if (!hayProductosValidos) {
-          setError("No tienes productos con stock suficiente para continuar.");
-          setSubmitting(false);
-          return;
+        setError("No tienes productos con stock suficiente para continuar.");
+        setSubmitting(false);
+        return;
       }
 
       const storedUser = localStorage.getItem("user");
@@ -165,10 +168,11 @@ export default function Checkout() {
       }
       const currentUser = JSON.parse(storedUser);
 
-      //  Agregamos el cupón al payload si existe
-      let payload = { 
-          clienteId: currentUser.id,
-          cuponId: coupon ? coupon.id : null 
+      //  Agregamos el cupón al payload si existe y el flag de Demo
+      let payload = {
+        clienteId: currentUser.id,
+        cuponId: coupon ? coupon.id : null,
+        esDemo: paymentMethod === "demo"
       };
 
       // PERFIL
@@ -220,7 +224,7 @@ export default function Checkout() {
 
       // Redirigir a Mercado Pago
       if (init_point) {
-          window.location.href = init_point;
+        window.location.href = init_point;
       }
 
     } catch (err) {
@@ -233,7 +237,7 @@ export default function Checkout() {
 
 
   // RENDER
- 
+
   if (loading) {
     return <div className="py-10 text-center">Cargando checkout...</div>;
   }
@@ -256,54 +260,54 @@ export default function Checkout() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
-      
+
       {/* HEADER + STEPPER */}
       <div className="text-center mb-10 flex flex-col items-center">
         <h1 className="text-2xl font-semibold mb-8">Check Out</h1>
 
         <div className="w-full max-w-3xl grid grid-cols-3 gap-4 md:gap-8 text-left">
-            
-            {/* Paso 1: Carrito (COMPLETADO) */}
-            <div 
-                onClick={() => navigate("/carrito")}
-                className="flex flex-col justify-end border-b-2 border-green-500 pb-3 cursor-pointer group hover:opacity-75 transition-opacity"
-                title="Volver al carrito"
-            >
-                <div className="flex items-center gap-2 md:gap-3">
-                    <div className="w-6 h-6 md:w-8 md:h-8 bg-green-500 rounded-full flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
-                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
-                    <span className="text-green-600 font-semibold text-xs md:text-sm group-hover:underline">Carrito de la compra</span>
-                </div>
-            </div>
 
-            {/* Paso 2: Detalles (ACTIVO) */}
-            <div className="flex flex-col justify-end border-b-2 border-[#8B5E3C] pb-3">
-                <div className="flex items-center gap-2 md:gap-3">
-                    <div className="w-6 h-6 md:w-8 md:h-8 bg-[#8B5E3C] rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm shadow-md">
-                        2
-                    </div>
-                    <span className="text-[#8B5E3C] font-bold text-xs md:text-sm">Detalles de pago</span>
-                </div>
+          {/* Paso 1: Carrito (COMPLETADO) */}
+          <div
+            onClick={() => navigate("/carrito")}
+            className="flex flex-col justify-end border-b-2 border-green-500 pb-3 cursor-pointer group hover:opacity-75 transition-opacity"
+            title="Volver al carrito"
+          >
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-green-500 rounded-full flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <span className="text-green-600 font-semibold text-xs md:text-sm group-hover:underline">Carrito de la compra</span>
             </div>
+          </div>
 
-            {/* Paso 3: Orden Completa (PENDIENTE) */}
-            <div className="flex flex-col justify-end border-b-2 border-gray-200 pb-3">
-                <div className="flex items-center gap-2 md:gap-3">
-                    <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm">
-                        3
-                    </div>
-                    <span className="text-gray-400 font-medium text-xs md:text-sm">Orden completa</span>
-                </div>
+          {/* Paso 2: Detalles (ACTIVO) */}
+          <div className="flex flex-col justify-end border-b-2 border-[#8B5E3C] pb-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-[#8B5E3C] rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm shadow-md">
+                2
+              </div>
+              <span className="text-[#8B5E3C] font-bold text-xs md:text-sm">Detalles de pago</span>
             </div>
+          </div>
+
+          {/* Paso 3: Orden Completa (PENDIENTE) */}
+          <div className="flex flex-col justify-end border-b-2 border-gray-200 pb-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm">
+                3
+              </div>
+              <span className="text-gray-400 font-medium text-xs md:text-sm">Orden completa</span>
+            </div>
+          </div>
 
         </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-10">
-        
+
         {/* IZQUIERDA: FORMULARIOS */}
         <div className="flex-1 flex flex-col gap-6">
 
@@ -314,11 +318,10 @@ export default function Checkout() {
             {/* PERFIL */}
             {hasPerfilAddress && (
               <label
-                className={`border rounded-lg px-4 py-3 cursor-pointer mb-4 flex items-center justify-between text-sm ${
-                  selectedMode === "perfil"
-                    ? "border-[#774d2a] bg-[#f7f2ee]"
-                    : "border-gray-200"
-                }`}
+                className={`border rounded-lg px-4 py-3 cursor-pointer mb-4 flex items-center justify-between text-sm ${selectedMode === "perfil"
+                  ? "border-[#774d2a] bg-[#f7f2ee]"
+                  : "border-gray-200"
+                  }`}
               >
                 <div>
                   <p className="font-medium">Usar mis datos de la cuenta</p>
@@ -351,12 +354,11 @@ export default function Checkout() {
                   {direcciones.map((dir) => (
                     <label
                       key={dir.id}
-                      className={`border rounded-lg px-4 py-3 cursor-pointer text-sm flex items-center justify-between ${
-                        selectedMode === "guardada" &&
+                      className={`border rounded-lg px-4 py-3 cursor-pointer text-sm flex items-center justify-between ${selectedMode === "guardada" &&
                         selectedDireccionId === dir.id
-                          ? "border-[#774d2a] bg-[#f7f2ee]"
-                          : "border-gray-200"
-                      }`}
+                        ? "border-[#774d2a] bg-[#f7f2ee]"
+                        : "border-gray-200"
+                        }`}
                     >
                       <div className="flex-1">
                         <div className="font-medium">
@@ -454,10 +456,44 @@ export default function Checkout() {
           {/* MÉTODO DE PAGO */}
           <section className="bg-white border rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-semibold mb-4">Método de pago</h2>
-            <label className="flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer text-sm border-[#774d2a] bg-[#f7f2ee]">
-              <span className="font-medium text-gray-800">Mercado Pago</span>
-              <input type="radio" defaultChecked className="text-[#8B5E3C] focus:ring-[#8B5E3C]" />
-            </label>
+            <div className="flex flex-col gap-3">
+              <label
+                className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer text-sm transition-colors ${paymentMethod === 'mercadopago' ? 'border-[#774d2a] bg-[#f7f2ee]' : 'border-gray-200'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-5 bg-blue-500 rounded flex items-center justify-center text-[10px] text-white font-bold tracking-tight">mp</div>
+                  <span className="font-medium text-gray-800">Mercado Pago</span>
+                </div>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="mercadopago"
+                  checked={paymentMethod === 'mercadopago'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="text-[#8B5E3C] focus:ring-[#8B5E3C]"
+                />
+              </label>
+
+              <label
+                className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer text-sm transition-colors ${paymentMethod === 'demo' ? 'border-[#774d2a] bg-[#f7f2ee]' : 'border-gray-200'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-5 bg-gray-800 rounded flex items-center justify-center text-[11px] text-white font-bold">🧪</div>
+                  <div>
+                    <span className="font-medium text-gray-800 block">Simulador de Prueba (Demo)</span>
+                    <span className="text-[10px] text-gray-500">Omite el pago real ideal para ver el flujo en el portfolio.</span>
+                  </div>
+                </div>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="demo"
+                  checked={paymentMethod === 'demo'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="text-[#8B5E3C] focus:ring-[#8B5E3C]"
+                />
+              </label>
+            </div>
           </section>
 
           {error && <p className="text-sm text-red-600 mt-2 bg-red-50 p-2 rounded">{error}</p>}
@@ -466,10 +502,10 @@ export default function Checkout() {
             onClick={handleSubmit}
             disabled={submitting || !hayProductosValidos} // BLOQUEO SI NO HAY STOCK VÁLIDO
             className={`mt-4 w-full py-3 rounded-lg transition text-sm font-bold
-                ${submitting || !hayProductosValidos 
-                    ? 'bg-gray-400 text-white cursor-not-allowed' 
-                    : 'bg-[#774d2a] text-white hover:bg-[#5f3c21]'
-                }
+                ${submitting || !hayProductosValidos
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-[#774d2a] text-white hover:bg-[#5f3c21]'
+              }
             `}
           >
             {submitting ? "Procesando..." : "Continuar con la compra"}
@@ -484,7 +520,7 @@ export default function Checkout() {
             {safeCart.map((item) => {
               const precioUnitario = Number(item.precio_unitario) + Number(item.costo_grabado);
               const subtotalItem = precioUnitario * item.cantidad;
-              
+
               // Detección de Stock
               const sinStock = item.cantidad > item.stock;
 
@@ -498,15 +534,15 @@ export default function Checkout() {
                       onError={(e) => (e.target.src = "/placeholder.png")}
                     />
                     {sinStock && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                            <span className="bg-red-600 text-white text-[9px] px-1 rounded font-bold uppercase">Sin Stock</span>
-                        </div>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <span className="bg-red-600 text-white text-[9px] px-1 rounded font-bold uppercase">Sin Stock</span>
+                      </div>
                     )}
                   </div>
 
                   <div className="flex-1">
                     <p className={`font-medium line-clamp-2 ${sinStock ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
-                        {item.nombre}
+                      {item.nombre}
                     </p>
                     {item.grabado_texto && (
                       <p className="text-xs text-gray-500 italic">"{item.grabado_texto}"</p>
@@ -514,8 +550,8 @@ export default function Checkout() {
                     <div className="flex items-center justify-between mt-1 text-xs text-gray-600">
                       <span>Cant: {item.cantidad}</span>
                       <span className="font-semibold">
-                         {/* Si no hay stock, mostramos $0 en la vista */}
-                         {sinStock ? "$0" : `$${subtotalItem.toLocaleString("es-AR")}`}
+                        {/* Si no hay stock, mostramos $0 en la vista */}
+                        {sinStock ? "$0" : `$${subtotalItem.toLocaleString("es-AR")}`}
                       </span>
                     </div>
                   </div>
@@ -525,7 +561,7 @@ export default function Checkout() {
           </div>
 
           <div className="border-t border-gray-200 pt-3 mt-3 text-sm space-y-2">
-            
+
             <div className="flex justify-between">
               <span>Subtotal (disponibles)</span>
               {/* Mostramos subtotal real calculado */}
@@ -534,31 +570,31 @@ export default function Checkout() {
 
             {/* DESCUENTO */}
             <div className="flex justify-between items-center h-5">
-                <span>Descuento</span>
-                <span className={coupon ? 'text-green-500 font-bold' : 'text-gray-400'}>
-                  {coupon ? `-$${montoDescuento.toLocaleString("es-AR")}` : '$0'}
-                </span>
+              <span>Descuento</span>
+              <span className={coupon ? 'text-green-500 font-bold' : 'text-gray-400'}>
+                {coupon ? `-$${montoDescuento.toLocaleString("es-AR")}` : '$0'}
+              </span>
             </div>
             {coupon && (
-                <div className="flex justify-end">
-                    <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded flex items-center gap-1">
-                        🏷️ {coupon.codigo} ({coupon.porcentaje}%)
-                    </span>
-                </div>
+              <div className="flex justify-end">
+                <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded flex items-center gap-1">
+                  🏷️ {coupon.codigo} ({coupon.porcentaje}%)
+                </span>
+              </div>
             )}
 
             {/* ENVÍO CON PRECIO  */}
             <div className="flex justify-between">
               <span>Envío</span>
               <span className={isFreeShipping ? "text-green-600 font-bold" : "text-gray-900"}>
-                  {isFreeShipping ? "Gratis" : `$${COSTO_ENVIO_FIJO.toLocaleString("es-AR")}`}
+                {isFreeShipping ? "Gratis" : `$${COSTO_ENVIO_FIJO.toLocaleString("es-AR")}`}
               </span>
             </div>
-            
+
             {!isFreeShipping && (
-                <p className="text-[10px] text-orange-500 mt-1 text-right">
-                  Faltan <span className="font-bold">${Math.max(0, ENVIO_GRATIS_LIMITE - subtotalReal).toLocaleString("es-AR")}</span> para envío gratis.
-                </p>
+              <p className="text-[10px] text-orange-500 mt-1 text-right">
+                Faltan <span className="font-bold">${Math.max(0, ENVIO_GRATIS_LIMITE - subtotalReal).toLocaleString("es-AR")}</span> para envío gratis.
+              </p>
             )}
 
             <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-100 mt-2">
