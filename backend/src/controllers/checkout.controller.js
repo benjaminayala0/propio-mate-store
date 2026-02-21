@@ -212,7 +212,7 @@ export const crearCheckout = async (req, res) => {
       );
     }
 
-    // --- MODO DEMO: SIMULAR COMPRA EXITOSA Y FLUJO DE NEGOCIO ---
+    // modo demo
     if (esDemo) {
       // 1. Descontar stock
       for (const item of itemsValidos) {
@@ -235,6 +235,46 @@ export const crearCheckout = async (req, res) => {
 
       // 3. Cerrar el carrito actual
       await db.query(`UPDATE carrito SET estado = 'cerrado' WHERE id = $1`, { bind: [carrito.id] });
+
+      // 4. Crear nuevo carrito vacío
+      await db.query(
+        `INSERT INTO carrito (cliente_id, estado, precio_total) VALUES ($1, 'activo', 0)`,
+        { bind: [clienteId] }
+      );
+
+      // 5. ENVIAR EMAIL DE CONFIRMACIÓN 
+      (async () => {
+        try {
+          const [userRows] = await db.query(
+            `SELECT email FROM usuarios WHERE id = $1`,
+            { bind: [clienteId] }
+          );
+
+          if (userRows.length > 0) {
+            const emailUser = userRows[0].email;
+
+            // items con FOTOS
+            for (const item of itemsValidos) {
+              try {
+                const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
+                const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
+                const response = await fetch(url);
+                const data = await response.json();
+                const imagenData = data?.data?.[0]?.imagen;
+                if (Array.isArray(imagenData) && imagenData.length > 0) {
+                  const rawUrl = imagenData[0].url;
+                  item.imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
+                }
+              } catch (e) { console.log("Error foto email", e.message); }
+            }
+
+            // Enviar el correo (Demo)
+            await enviarCorreoCompra(emailUser, String(orden.id), itemsValidos, orden.monto_total);
+          }
+        } catch (mailErr) {
+          console.error("⚠️ Error proceso email background (Demo):", mailErr);
+        }
+      })();
 
       return res.json({
         ok: true,
