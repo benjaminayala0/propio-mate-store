@@ -5,8 +5,9 @@ import crypto from "node:crypto";
 
 // MERCADO PAGO
 
+const mpToken = (process.env.MP_ACCESS_TOKEN || "").trim();
 const mpClient = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN,
+  accessToken: mpToken,
 });
 const paymentClient = new Payment(mpClient);
 
@@ -269,6 +270,7 @@ export const crearCheckout = async (req, res) => {
     });
   } catch (err) {
     console.error("🔥 Error crítico de MercadoPago:", err);
+    console.error(`MP_TOKEN verification: starts with '${mpToken.substring(0, 10)}...', ends with '...${mpToken.slice(-4)}', length: ${mpToken.length}`);
     if (err.cause) console.error("Detalles MP:", JSON.stringify(err.cause, null, 2));
     res.status(500).json({ error: "Error creando checkout", details: err });
   }
