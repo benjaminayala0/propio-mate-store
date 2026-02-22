@@ -63,6 +63,35 @@ app.get("/", (req, res) => {
   res.send("API Mate Unico funcionando");
 });
 
+// ENDPOINT DE MANTENIMIENTO: Evita que Render apague los servidores (Cold Start)
+app.get("/api/health", async (req, res) => {
+  try {
+    // 1. Backend activo 
+    const backendStatus = "🟢 OK";
+
+    // 2. Micro-Ping a Strapi para que tampoco se duerma
+    const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://localhost:1337";
+    await import('axios').then(axios => axios.default.get(STRAPI_BASE_URL + "/api/productos?pagination[limit]=1", { timeout: 5000 }));
+
+    const strapiStatus = "🟢 OK";
+
+    res.json({
+      status: "Activo",
+      backend: backendStatus,
+      strapi: strapiStatus,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("⚠️ Strapi dormido durante el Health Check", error.message);
+    res.json({
+      status: "Activo",
+      backend: "🟢 OK",
+      strapi: "🔴 DURMIENDO O CAÍDO",
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 app.use("/api/products", productRoutes);
 app.use("/api/productos", productRoutes);
 app.use("/api/cart", cartRoutes);
