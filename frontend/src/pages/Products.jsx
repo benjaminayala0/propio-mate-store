@@ -7,6 +7,7 @@ export default function Products() {
   const [productos, setProductos] = useState([]);
   const [filtrados, setFiltrados] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showFiltros, setShowFiltros] = useState(false); // toggle mobile sidebar
 
   // URL params
   const location = useLocation();
@@ -176,10 +177,10 @@ export default function Products() {
 
   // RENDER
   return (
-    <div className="w-full min-h-screen bg-white px-8 py-8">
+    <div className="w-full min-h-screen bg-white px-4 md:px-8 py-6 md:py-8">
 
       {/* Migas de Pan */}
-      <nav className="text-sm text-gray-600 mb-6 flex items-center gap-2">
+      <nav className="text-sm text-gray-600 mb-4 flex items-center gap-2">
         <Link to="/" className="hover:underline">Inicio</Link>
         <span>›</span>
 
@@ -193,10 +194,23 @@ export default function Products() {
         {searchMode && <span className="text-[#8B4513] font-medium"> › Buscando: "{searchMode}"</span>}
       </nav>
 
-      <div className="flex gap-10">
+      {/* BOTÓN FILTROS mobile */}
+      <div className="md:hidden mb-4">
+        <button
+          onClick={() => setShowFiltros(!showFiltros)}
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+          </svg>
+          {showFiltros ? "Ocultar filtros" : "Mostrar filtros"}
+        </button>
+      </div>
 
-        {/* SIDEBAR (Filtros) */}
-        <aside className="w-52 flex-shrink-0 text-gray-900">
+      <div className="flex gap-6 md:gap-10">
+
+        {/* SIDEBAR (Filtros) — oculto en mobile, visible en md+ o si showFiltros */}
+        <aside className={`w-52 flex-shrink-0 text-gray-900 ${showFiltros ? "block" : "hidden"} md:block`}>
           {/* ... (Tus filtros de checkbox siguen igual) ... */}
           <h3 className="font-semibold mb-2">Tipo de Mate</h3>
           <ul className="space-y-2 mb-6">
@@ -270,7 +284,7 @@ export default function Products() {
               <p>Cargando productos...</p>
             </div>
           ) : filtrados.length > 0 ? (
-            <div className="grid grid-cols-3 gap-10 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-10 mt-4">
               {filtrados.map((prod) => (
                 <ProductCard key={prod.id} product={prod} />
               ))}
