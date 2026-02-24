@@ -19,7 +19,7 @@ const getImagenProducto = async (productoId) => {
   // 3. Fallback: buscar en Strapi (comportamiento original)
   try {
     const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
-    const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${productoId}&populate=*`;
+    const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${productoId}&populate[imagen]=*`;
     const response = await fetch(url);
     const data = await response.json();
     const imagenData = data?.data?.[0]?.imagen;
