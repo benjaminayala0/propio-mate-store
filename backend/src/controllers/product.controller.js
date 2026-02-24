@@ -74,8 +74,7 @@ export const getProductById = async (req, res) => {
     // 2. Viajar a Strapi
     console.log(`⏳ Descargando producto ${id} desde Strapi Nube...`);
     const response = await axios.get(
-      // populate=imagen,variantes_relacionadas: solo los campos que leemos
-      `${STRAPI_URL}?filters[id][$eq]=${id}&populate=imagen,variantes_relacionadas`,
+      `${STRAPI_URL}?filters[id][$eq]=${id}&populate[0]=imagen&populate[1]=variantes_relacionadas`,
       { timeout: 15000 }
     );
 
