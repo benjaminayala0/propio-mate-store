@@ -1,11 +1,8 @@
 import axios from "axios";
-import NodeCache from "node-cache";
+import productCache from "../helpers/cache.js";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337/api/productos";
 const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://localhost:1337";
-
-// Cache configurado para guardar en memoria por 5 minutos (300 segundos)
-const productCache = new NodeCache({ stdTTL: 300 });
 
 // GET ALL PRODUCTS
 

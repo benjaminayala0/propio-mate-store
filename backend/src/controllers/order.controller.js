@@ -1,4 +1,36 @@
 import { db } from "../db.js";
+import productCache from "../helpers/cache.js";
+
+// Helper: imagen desde Caché RAM → si miss, fallback a Strapi
+const getImagenProducto = async (productoId) => {
+  // 1. Revisar caché de producto individual
+  const cached = productCache.get(`product_${productoId}`);
+  if (cached?.imagen) {
+    return cached.imagen;
+  }
+
+  // 2. Revisar caché del catálogo completo
+  const allProducts = productCache.get("allProducts");
+  if (allProducts) {
+    const found = allProducts.find((p) => p.id === productoId || p.id === Number(productoId));
+    if (found?.imagen) return found.imagen;
+  }
+
+  // 3. Fallback: buscar en Strapi (comportamiento original)
+  try {
+    const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
+    const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${productoId}&populate=*`;
+    const response = await fetch(url);
+    const data = await response.json();
+    const imagenData = data?.data?.[0]?.imagen;
+    if (Array.isArray(imagenData) && imagenData.length > 0) {
+      const rawUrl = imagenData[0].url;
+      return rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
+    }
+  } catch (e) { /* silencioso */ }
+
+  return null;
+};
 
 // 1) Obtener UNA orden específica 
 // GET /api/orders/:id
@@ -36,25 +68,9 @@ export const getOrderById = async (req, res) => {
       { bind: [id] }
     );
 
-    // C) Cargar imágenes desde Strapi 
+    // C) Cargar imágenes desde Caché RAM (con fallback a Strapi)
     await Promise.all(items.map(async (item) => {
-      try {
-        const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
-        const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
-        const response = await fetch(url);
-        const data = await response.json();
-        const imagenData = data?.data?.[0]?.imagen;
-
-        if (Array.isArray(imagenData) && imagenData.length > 0) {
-          const rawUrl = imagenData[0].url;
-          item.imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
-        } else {
-          item.imagen = null;
-        }
-      } catch (err) {
-        console.error(`Error imagen item ${item.producto_id}:`, err.message);
-        item.imagen = null;
-      }
+      item.imagen = await getImagenProducto(item.producto_id);
     }));
 
     res.json({
@@ -120,25 +136,9 @@ export const getHistorialUsuario = async (req, res) => {
         { bind: [orden.id] }
       );
 
-      // Cargar imágenes en PARALELO
-      // En lugar de esperar una por una, las pedimos todas juntas a Strapi
+      // Cargar imágenes desde Caché RAM (con fallback a Strapi)
       await Promise.all(items.map(async (item) => {
-        try {
-          const STRAPI_BASE_URL = process.env.STRAPI_BASE_URL || "http://127.0.0.1:1337";
-          const url = `${STRAPI_BASE_URL}/api/productos?filters[id][$eq]=${item.producto_id}&populate=*`;
-          const response = await fetch(url);
-          const data = await response.json();
-          const imagenData = data?.data?.[0]?.imagen;
-
-          if (Array.isArray(imagenData) && imagenData.length > 0) {
-            const rawUrl = imagenData[0].url;
-            item.imagen = rawUrl.startsWith("http") ? rawUrl : STRAPI_BASE_URL + rawUrl;
-          } else {
-            item.imagen = null;
-          }
-        } catch (e) {
-          item.imagen = null;
-        }
+        item.imagen = await getImagenProducto(item.producto_id);
       }));
 
       resultados.push({
