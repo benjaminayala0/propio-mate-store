@@ -10,6 +10,7 @@ export default ({ env }) => {
         connectionString: connectionUrl,
         ssl: { rejectUnauthorized: false },
       },
+      pool: { min: 2, max: 10 },
     };
   } else {
     connectionConfig = {
@@ -22,6 +23,7 @@ export default ({ env }) => {
         password: env("DB_PASSWORD", "123"),
         ssl: false,
       },
+      pool: { min: 2, max: 10 },
     };
   }
 
