@@ -31,8 +31,6 @@ dotenv.config();
 connectDB();
 
 const app = express();
-// Render corre detrás de un proxy reverso: necesario para que express-rate-limit
-// pueda leer la IP real del cliente desde el header X-Forwarded-For
 app.set("trust proxy", 1);
 
 // CORS CONFIG 
@@ -51,7 +49,13 @@ app.use(
       // Permitir requests sin origin (mobile apps, Postman, curl)
       if (!origin) return callback(null, true);
 
+      // Lista blanca exacta
       if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Permitir SOLO las previews de NUESTRO proyecto en Vercel (no de cualquiera)
+      if (origin.includes("propio-mate-store-7rcf") && origin.endsWith(".vercel.app")) {
         return callback(null, true);
       }
 
