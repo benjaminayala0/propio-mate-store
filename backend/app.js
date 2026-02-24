@@ -67,7 +67,11 @@ app.use(
 );
 
 // 🛡️ HELMET: cabeceras de seguridad HTTP
-app.use(helmet());
+// crossOriginResourcePolicy: "cross-origin" permite que el frontend (Vercel)
+// cargue imágenes y archivos estáticos servidos desde este backend (Render)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // 🚫 RATE LIMITING: máx 100 reqs por IP cada 15 minutos para la API general
 const apiLimiter = rateLimit({
