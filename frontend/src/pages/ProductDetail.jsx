@@ -262,12 +262,12 @@ export default function ProductDetail() {
       )}
 
       {/* BREADCRUMB */}
-      <nav className="text-sm text-gray-600 mb-6 flex items-center gap-2">
-        <Link to="/" className="hover:underline">Inicio</Link>
+      <nav className="text-sm text-gray-600 mb-6 flex flex-wrap items-center gap-1">
+        <Link to="/" className="hover:underline whitespace-nowrap">Inicio</Link>
         <span>›</span>
-        <Link to="/productos" className="hover:underline">Productos</Link>
+        <Link to="/productos" className="hover:underline whitespace-nowrap">Productos</Link>
         <span>›</span>
-        <span className="font-medium text-gray-800">{producto.nombre}</span>
+        <span className="font-medium text-gray-800 break-words min-w-0">{producto.nombre}</span>
       </nav>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">

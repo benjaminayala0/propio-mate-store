@@ -21,25 +21,25 @@ export default function Cuenta() {
   /* FUNCIÓN HELPER PARA LA FOTO */
   const buildUserPhoto = (foto) => {
     if (!foto) {
-       const nombreCompleto = user ? `${user.nombre}+${user.apellido}` : "User";
-       return `https://ui-avatars.com/api/?name=${nombreCompleto}&background=random&color=fff&size=128`;
+      const nombreCompleto = user ? `${user.nombre}+${user.apellido}` : "User";
+      return `https://ui-avatars.com/api/?name=${nombreCompleto}&background=random&color=fff&size=128`;
     }
 
     let urlFinal = "";
 
     // Parche de seguridad (Localhost a Ngrok)
     if (foto.includes("localhost:3000")) {
-       const cleanPath = foto.split("3000")[1];
-       urlFinal = `${import.meta.env.VITE_API_URL}${cleanPath}`;
+      const cleanPath = foto.split("3000")[1];
+      urlFinal = `${import.meta.env.VITE_API_URL}${cleanPath}`;
     }
     // Si ya es URL externa
     else if (foto.startsWith("http")) {
-       urlFinal = foto;
+      urlFinal = foto;
     }
     // Ruta relativa
     else {
-       const path = foto.startsWith('/') ? foto : `/${foto}`;
-       urlFinal = `${import.meta.env.VITE_API_URL}${path}`;
+      const path = foto.startsWith('/') ? foto : `/${foto}`;
+      urlFinal = `${import.meta.env.VITE_API_URL}${path}`;
     }
 
     // pegamos el timestamp al final
@@ -74,10 +74,10 @@ export default function Cuenta() {
         const updated = { ...user, foto: data.foto };
         localStorage.setItem("user", JSON.stringify(updated));
         setUser(updated);
-        
+
         // ACTUALIZA EL TIMESTAMP AL SUBIR
         // Al cambiar esto, la función buildUserPhoto devolverá una URL nueva
-        setImgKey(Date.now()); 
+        setImgKey(Date.now());
         window.dispatchEvent(new Event("userUpdated"));
       }
     } catch (error) {
@@ -109,7 +109,7 @@ export default function Cuenta() {
         const updated = { ...user, foto: null };
         localStorage.setItem("user", JSON.stringify(updated));
         setUser(updated);
-        
+
         // ACTUALIZAMOS EL TIMESTAMP AL BORRAR TAMBIÉN
         // Para asegurarnos que si sube una nueva inmediatamente, no use caché vieja
         setImgKey(Date.now());
@@ -128,20 +128,20 @@ export default function Cuenta() {
   }
 
   return (
-    <div className="w-full flex flex-col items-center py-10 relative">
+    <div className="w-full flex flex-col items-center py-10 relative px-4 overflow-x-hidden">
       <h1 className="text-4xl font-bold mb-10">Mi Cuenta</h1>
 
-      <div className="flex w-full max-w-2xl gap-10">
+      <div className="flex flex-col md:flex-row w-full max-w-2xl gap-6 md:gap-10">
 
         {/* MENÚ LATERAL */}
-        <div className="w-48 bg-gray-100 rounded-xl shadow-sm p-4 flex flex-col items-center text-center h-fit">
+        <div className="w-full md:w-48 bg-gray-100 rounded-xl shadow-sm p-4 flex flex-col items-center text-center h-fit">
 
           <img
             src={buildUserPhoto(user.foto)}
             alt="Foto de perfil"
             className="w-20 h-20 rounded-full object-cover border"
             //  fuerza a React a redibujar la imagen sí o sí
-            key={imgKey} 
+            key={imgKey}
           />
 
           <button
@@ -153,7 +153,7 @@ export default function Cuenta() {
 
           {user.foto && (
             <button
-              onClick={handleClickEliminar} 
+              onClick={handleClickEliminar}
               className="text-xs text-red-600 underline mt-1 hover:text-red-800"
             >
               Quitar foto
@@ -184,16 +184,16 @@ export default function Cuenta() {
         <div className="flex-1 w-full">
           <div className="bg-white border rounded-xl shadow-sm p-8">
 
-            <div className="w-full flex items-center mb-8 border-b pb-4">
-              <h3 className="text-2xl font-bold text-gray-900">
+            <div className="w-full flex flex-wrap items-center mb-8 border-b pb-4 gap-2">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900">
                 {user.nombre} {user.apellido}
               </h3>
 
               <button
                 onClick={() => navigate("/completar-perfil")}
-                className="ml-auto text-gray-500 hover:text-[#774d2a] font-medium flex items-center gap-2 transition"
+                className="ml-auto text-gray-500 hover:text-[#774d2a] font-medium flex items-center gap-2 transition text-sm whitespace-nowrap"
               >
-                ✏️Editar Datos
+                ✏️ Editar Datos
               </button>
             </div>
 
@@ -213,11 +213,11 @@ export default function Cuenta() {
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm transform transition-all scale-100">
-            
+
             <div className="flex flex-col items-center text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </div>
 

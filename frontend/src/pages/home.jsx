@@ -132,7 +132,7 @@ export default function Home() {
       <section className="max-w-6xl mx-auto px-4 pt-10 relative group">
 
         <div
-          className="w-full h-[500px] md:h-[500px] lg:h-[600px] rounded-md  bg-cover duration-500"
+          className="w-full h-[250px] md:h-[500px] lg:h-[600px] rounded-md bg-cover bg-center duration-500"
           style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
         ></div>
 
