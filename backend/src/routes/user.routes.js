@@ -4,6 +4,7 @@ import path from "path";
 import { actualizarUsuario, eliminarFoto } from "../controllers/usuario.controller.js";
 import Usuario from "../models/usuario.model.js";
 import { getHistorialUsuario } from "../controllers/order.controller.js";
+import { verifyToken } from "../helpers/verifyToken.js";
 
 const router = Router();
 
@@ -19,10 +20,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ACTUALIZAR CAMPOS NORMALES 
-router.put("/:id", actualizarUsuario);
+router.put("/:id", verifyToken, actualizarUsuario);
 
 // ACTUALIZAR FOTO
-router.patch("/:id/foto", upload.single("foto"), async (req, res) => {
+router.patch("/:id/foto", verifyToken, upload.single("foto"), async (req, res) => {
   try {
     if (!req.file)
       return res.status(400).json({ error: "No se recibió ninguna imagen" });
@@ -42,10 +43,9 @@ router.patch("/:id/foto", upload.single("foto"), async (req, res) => {
 });
 
 // ELIMINAR FOTO
-router.delete("/:id/foto", eliminarFoto);
+router.delete("/:id/foto", verifyToken, eliminarFoto);
 
-
-// Alternativamente, si se desea usar el controlador del order.controller.js
-router.get("/:id/historial", getHistorialUsuario);
+// HISTORIAL DE COMPRAS
+router.get("/:id/historial", verifyToken, getHistorialUsuario);
 
 export default router;

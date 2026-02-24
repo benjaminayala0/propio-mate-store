@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 // IMPORTAR TODAS LAS RUTAS
 import testRoutes from "./src/routes/test.routes.js";
@@ -38,14 +40,15 @@ const allowedOrigins = [
   "https://mate-unico-store.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
-];
+].filter(Boolean); // elimina cualquier undefined de env vars no seteadas
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Permitir requests sin origin (mobile apps, Postman, curl)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
@@ -55,6 +58,27 @@ app.use(
     credentials: true,
   })
 );
+
+// 🛡️ HELMET: cabeceras de seguridad HTTP
+app.use(helmet());
+
+// 🚫 RATE LIMITING: máx 100 reqs por IP cada 15 minutos para la API general
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiadas peticiones, intentá de nuevo en 15 minutos" },
+});
+
+// Límite más estricto para el endpoint de autenticación: 10 intentos por 15 min
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiados intentos de login, intentá en 15 minutos" },
+});
 
 app.use(express.json());
 
@@ -92,15 +116,15 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-app.use("/api/products", productRoutes);
-app.use("/api/productos", productRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/coupons", couponRoutes);
-app.use("/api/shipping", shippingRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/reviews", reviewRoutes);
+app.use("/api/products", apiLimiter, productRoutes);
+app.use("/api/productos", apiLimiter, productRoutes);
+app.use("/api/cart", apiLimiter, cartRoutes);
+app.use("/api/coupons", apiLimiter, couponRoutes);
+app.use("/api/shipping", apiLimiter, shippingRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/reviews", apiLimiter, reviewRoutes);
 app.use("/api/test", testRoutes);
-app.use("/api/usuarios", userRoutes);
+app.use("/api/usuarios", apiLimiter, userRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/domicilio", domicilioRoutes);
 app.use("/api/checkout", checkoutRoutes);
