@@ -31,6 +31,9 @@ dotenv.config();
 connectDB();
 
 const app = express();
+// Render corre detrás de un proxy reverso: necesario para que express-rate-limit
+// pueda leer la IP real del cliente desde el header X-Forwarded-For
+app.set("trust proxy", 1);
 
 // CORS CONFIG 
 const allowedOrigins = [

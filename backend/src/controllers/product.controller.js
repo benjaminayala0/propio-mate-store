@@ -17,8 +17,8 @@ export const getAllProducts = async (req, res) => {
 
     // 2. Si NO están en caché, viajamos por internet hacia Strapi
     console.log("⏳ Descargando catálogo desde Strapi Nube...");
-    // populate[imagen]=* en vez de populate=* para no traer relaciones innecesarias (más rápido)
-    const response = await axios.get(STRAPI_URL + "?populate[imagen]=*");
+    // populate=imagen en vez de populate=* para no traer relaciones innecesarias
+    const response = await axios.get(STRAPI_URL + "?populate=imagen");
     const productosRaw = response.data.data;
 
     const productos = productosRaw.map((item) => {
@@ -74,8 +74,8 @@ export const getProductById = async (req, res) => {
     // 2. Viajar a Strapi
     console.log(`⏳ Descargando producto ${id} desde Strapi Nube...`);
     const response = await axios.get(
-      // Solo populamos los campos que realmente leemos (más rápido que populate=*)
-      `${STRAPI_URL}?filters[id][$eq]=${id}&populate[imagen]=*&populate[variantes_relacionadas]=*`,
+      // populate=imagen,variantes_relacionadas: solo los campos que leemos
+      `${STRAPI_URL}?filters[id][$eq]=${id}&populate=imagen,variantes_relacionadas`,
       { timeout: 15000 }
     );
 
