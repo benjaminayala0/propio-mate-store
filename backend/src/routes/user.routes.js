@@ -1,43 +1,39 @@
 import { Router } from "express";
 import multer from "multer";
-import path from "path";
 import { actualizarUsuario, eliminarFoto } from "../controllers/usuario.controller.js";
 import Usuario from "../models/usuario.model.js";
 import { getHistorialUsuario } from "../controllers/order.controller.js";
 import { verifyToken } from "../helpers/verifyToken.js";
+import { subirFotoCloudinary } from "../helpers/cloudinary.js";
 
 const router = Router();
 
-// CONFIGURACIÓN MULTER
-const storage = multer.diskStorage({
-  destination: "uploads",
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `user_${req.params.id}${ext}`);
-  },
-});
+// MULTER EN MEMORIA (no guarda en disco, el buffer va directo a Cloudinary)
+const upload = multer({ storage: multer.memoryStorage() });
 
-const upload = multer({ storage });
-
-// ACTUALIZAR CAMPOS NORMALES 
+// ACTUALIZAR CAMPOS NORMALES
 router.put("/:id", verifyToken, actualizarUsuario);
 
-// ACTUALIZAR FOTO
+// ACTUALIZAR FOTO → sube a Cloudinary y guarda la URL en la DB
 router.patch("/:id/foto", verifyToken, upload.single("foto"), async (req, res) => {
   try {
-    if (!req.file)
+    if (!req.file) {
       return res.status(400).json({ error: "No se recibió ninguna imagen" });
+    }
 
-    const filePath = `/uploads/${req.file.filename}`;
+    // Subir a Cloudinary en la carpeta "usuarios", con ID único por usuario
+    const publicId = `user_${req.params.id}`;
+    const urlCloudinary = await subirFotoCloudinary(req.file.buffer, publicId);
 
+    // Guardar la URL pública de Cloudinary en la base de datos
     await Usuario.update(
-      { foto: filePath },
+      { foto: urlCloudinary },
       { where: { id: req.params.id } }
     );
 
-    return res.json({ foto: filePath });
+    return res.json({ foto: urlCloudinary });
   } catch (error) {
-    console.error("Error al subir foto:", error);
+    console.error("Error al subir foto a Cloudinary:", error);
     res.status(500).json({ error: "Error al actualizar foto" });
   }
 });
