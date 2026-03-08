@@ -223,7 +223,7 @@ export default function Cart() {
         <div className="lg:col-span-1 space-y-8">
 
           {/* CARD RESUMEN */}
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-8 ">
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-5 md:p-8 ">
             <h2 className="text-xl font-bold mb-6 text-gray-900">Resumen</h2>
 
             <div className="space-y-4 text-sm text-gray-600 border-b border-gray-100 pb-6 mb-6">

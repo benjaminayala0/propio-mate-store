@@ -79,7 +79,7 @@ export default function Login() {
   }, []);
 
   return (
-    <div className="relative w-full flex items-center justify-center py-20">
+    <div className="relative w-full min-h-[80vh] flex items-center justify-center py-20">
 
       {/* Fondo */}
       <div className="absolute inset-0">

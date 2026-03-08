@@ -265,41 +265,47 @@ export default function Checkout() {
       <div className="text-center mb-10 flex flex-col items-center">
         <h1 className="text-2xl font-semibold mb-8">Check Out</h1>
 
-        <div className="w-full max-w-3xl grid grid-cols-3 gap-4 md:gap-8 text-left">
+        <div className="w-full max-w-3xl grid grid-cols-3 gap-2 md:gap-8 text-center md:text-left">
 
           {/* Paso 1: Carrito (COMPLETADO) */}
           <div
             onClick={() => navigate("/carrito")}
-            className="flex flex-col justify-end border-b-2 border-green-500 pb-3 cursor-pointer group hover:opacity-75 transition-opacity"
+            className="flex flex-col justify-end border-b-2 border-green-500 pb-2 md:pb-3 cursor-pointer group hover:opacity-75 transition-opacity"
             title="Volver al carrito"
           >
-            <div className="flex items-center gap-2 md:gap-3">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-3">
               <div className="w-6 h-6 md:w-8 md:h-8 bg-green-500 rounded-full flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
                 <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
-              <span className="text-green-600 font-semibold text-xs md:text-sm group-hover:underline">Carrito de la compra</span>
+              <span className="text-green-600 font-semibold text-[11px] sm:text-xs md:text-sm leading-tight md:leading-normal group-hover:underline">
+                Carrito<span className="hidden md:inline"> de la compra</span>
+              </span>
             </div>
           </div>
 
           {/* Paso 2: Detalles (ACTIVO) */}
-          <div className="flex flex-col justify-end border-b-2 border-[#8B5E3C] pb-3">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="w-6 h-6 md:w-8 md:h-8 bg-[#8B5E3C] rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm shadow-md">
+          <div className="flex flex-col justify-end border-b-2 border-[#8B5E3C] pb-2 md:pb-3">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-[#8B5E3C] rounded-full flex items-center justify-center text-white font-bold text-[11px] md:text-sm shadow-md">
                 2
               </div>
-              <span className="text-[#8B5E3C] font-bold text-xs md:text-sm">Detalles de pago</span>
+              <span className="text-[#8B5E3C] font-bold text-[11px] sm:text-xs md:text-sm leading-tight md:leading-normal">
+                <span className="hidden md:inline">Detalles de </span>Pago
+              </span>
             </div>
           </div>
 
           {/* Paso 3: Orden Completa (PENDIENTE) */}
-          <div className="flex flex-col justify-end border-b-2 border-gray-200 pb-3">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm">
+          <div className="flex flex-col justify-end border-b-2 border-gray-200 pb-2 md:pb-3">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-[11px] md:text-sm">
                 3
               </div>
-              <span className="text-gray-400 font-medium text-xs md:text-sm">Orden completa</span>
+              <span className="text-gray-400 font-medium text-[11px] sm:text-xs md:text-sm leading-tight md:leading-normal">
+                Orden<span className="hidden md:inline"> completa</span>
+              </span>
             </div>
           </div>
 
@@ -312,7 +318,7 @@ export default function Checkout() {
         <div className="flex-1 flex flex-col gap-6">
 
           {/* TARJETA DIRECCIONES */}
-          <section className="bg-white border rounded-xl shadow-sm p-6">
+          <section className="bg-white border rounded-xl shadow-sm p-4 md:p-6">
             <h2 className="text-lg font-semibold mb-4">Dirección de envío</h2>
 
             {/* PERFIL */}
@@ -454,7 +460,7 @@ export default function Checkout() {
           </section>
 
           {/* MÉTODO DE PAGO */}
-          <section className="bg-white border rounded-xl shadow-sm p-6">
+          <section className="bg-white border rounded-xl shadow-sm p-4 md:p-6">
             <h2 className="text-lg font-semibold mb-4">Método de pago</h2>
             <div className="flex flex-col gap-3">
               <label
@@ -513,7 +519,7 @@ export default function Checkout() {
         </div>
 
         {/* RESUMEN (DERECHA) */}
-        <aside className="w-full lg:w-80 bg-white border rounded-xl shadow-sm p-6 h-fit">
+        <aside className="w-full lg:w-80 bg-white border rounded-xl shadow-sm p-4 md:p-6 h-fit">
           <h2 className="text-lg font-semibold mb-4">Resumen del pedido</h2>
 
           <div className="flex flex-col gap-4 max-h-80 overflow-y-auto mb-4 pr-2 custom-scrollbar">

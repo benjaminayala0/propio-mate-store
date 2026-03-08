@@ -131,42 +131,49 @@ export default function Home() {
       {/* SLIDER */}
       <section className="max-w-6xl mx-auto px-4 pt-10 relative group">
 
-        <div
-          className="w-full h-[250px] md:h-[500px] lg:h-[600px] rounded-md bg-cover bg-center duration-500"
-          style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
-        ></div>
+        {/* CONTENEDOR DE IMAGEN RESPONSIVE */}
+        <div className="w-full aspect-square sm:aspect-video lg:h-[500px] lg:aspect-auto rounded-md overflow-hidden bg-[#f3f5f6] flex items-center justify-center relative z-0">
+          <img
+            src={slides[currentIndex].url}
+            alt={slides[currentIndex].title}
+            className="w-full h-full object-contain md:object-cover duration-500 scale-100"
+          />
+        </div>
 
         {/* FLECHA IZQUIERDA */}
-        <div
-          className="absolute top-[50%] left-8 text-2xl rounded-full p-2 bg-white/80 hover:bg-white cursor-pointer shadow-md hidden group-hover:block"
+        <button
+          className="absolute top-1/2 -translate-y-1/2 left-6 md:left-8 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/90 hover:bg-white cursor-pointer shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 outline-none pointer-events-auto"
           onClick={prevSlide}
+          aria-label="Anterior"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-black">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-black">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
-        </div>
+        </button>
 
         {/* FLECHA DERECHA */}
-        <div
-          className="absolute top-[50%] right-8 text-2xl rounded-full p-2 bg-white/80 hover:bg-white cursor-pointer shadow-md hidden group-hover:block"
+        <button
+          className="absolute top-1/2 -translate-y-1/2 right-6 md:right-8 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/90 hover:bg-white cursor-pointer shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 outline-none pointer-events-auto"
           onClick={nextSlide}
+          aria-label="Siguiente"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-black">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-black">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
           </svg>
-        </div>
+        </button>
 
         {/* PUNTITOS */}
-        <div className="flex justify-center py-2 mt-2 gap-2">
+        <div className="flex justify-center py-2 mt-4 gap-2 relative z-10">
           {slides.map((_, idx) => (
-            <div
+            <button
               key={idx}
               onClick={() => goToSlide(idx)}
-              className={`cursor-pointer rounded-full ${currentIndex === idx
+              aria-label={`Ir a la diapositiva ${idx + 1}`}
+              className={`cursor-pointer rounded-full transition-all duration-300 py-1 ${currentIndex === idx
                 ? "bg-[#8B5E3C] w-8 h-2"
-                : "bg-gray-300 w-2 h-2"
+                : "bg-gray-300 w-2 h-2 hover:bg-gray-400"
                 }`}
-            ></div>
+            ></button>
           ))}
         </div>
       </section>
@@ -190,24 +197,28 @@ export default function Home() {
         <div>
           <h2 className="text-black text-2xl font-semibold">Combos</h2>
           <button
-            className="mt-4 px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700"
+            className="mt-4 px-6 py-2.5 bg-gray-800 text-white rounded-md text-sm font-medium hover:bg-gray-700 active:scale-95 transition-all relative z-10"
             onClick={() => navigate("/productos?combo=true")}
           >
             Compra Ahora →
           </button>
-          <img src={combosImg} className="w-full h-[280px] md:h-[320px] object-cover rounded-md mt-4" />
+          <div className="w-full aspect-video sm:aspect-square md:h-[320px] md:aspect-auto mt-4 rounded-md overflow-hidden">
+            <img src={combosImg} className="w-full h-full object-cover" alt="Combos" />
+          </div>
         </div>
 
         {/* PRODUCTOS */}
         <div>
           <h2 className="text-black text-2xl font-semibold">Productos</h2>
           <button
-            className="mt-4 px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700"
+            className="mt-4 px-6 py-2.5 bg-gray-800 text-white rounded-md text-sm font-medium hover:bg-gray-700 active:scale-95 transition-all relative z-10"
             onClick={() => navigate("/productos")}
           >
             Compra Ahora →
           </button>
-          <img src={productosImg} className="w-full h-[280px] md:h-[320px] object-cover rounded-md mt-4" />
+          <div className="w-full aspect-video sm:aspect-square md:h-[320px] md:aspect-auto mt-4 rounded-md overflow-hidden">
+            <img src={productosImg} className="w-full h-full object-cover" alt="Productos" />
+          </div>
         </div>
 
       </section>
@@ -229,10 +240,13 @@ export default function Home() {
               onClick={() => navigate(`/producto/${product.id}`)}
             >
               <div className="relative">
-                <img
-                  src={product.imagen}
-                  className="w-full h-[260px] object-cover rounded-md"
-                />
+                <div className="w-full aspect-square bg-[#f3f5f6] rounded-md overflow-hidden flex items-center justify-center">
+                  <img
+                    src={product.imagen}
+                    alt={product.nombre}
+                    className="w-full h-full object-contain md:object-cover"
+                  />
+                </div>
 
                 {/* BADGE NUEVO */}
                 {product.esNuevo === true && (
@@ -275,17 +289,17 @@ export default function Home() {
         <div className="relative max-w-6xl mx-auto px-4 pb-20">
           <div className="rounded-md overflow-hidden h-[260px] md:h-[300px] lg:h-[320px] relative">
             <img src={newsletterBg} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40"></div>
+            <div className="absolute inset-0 bg-black/40 pointer-events-none"></div>
 
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-              <h2 className="text-2xl md:text-3xl text-white mb-3">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 relative z-10">
+              <h2 className="text-2xl md:text-3xl text-white mb-3 font-medium">
                 Suscríbete a nuestro boletín informativo
               </h2>
               <p className="text-sm md:text-base text-gray-100 mb-5 max-w-xl">
                 Regístrate para recibir ofertas, nuevos productos y promociones.
               </p>
 
-              <form className="flex flex-col md:flex-row gap-3 w-full max-w-md">
+              <form className="flex flex-col md:flex-row gap-3 w-full max-w-md pointer-events-auto">
                 <input
                   type="email"
                   placeholder="Email"
