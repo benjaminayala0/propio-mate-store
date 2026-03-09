@@ -71,7 +71,7 @@ export default function ProductCard({ product }) {
             <img
               src={product.imagen}
               alt={product.nombre}
-              className="w-full h-full object-contain md:object-cover"
+              className="w-full h-full object-cover object-center"
             />
           </div>
 

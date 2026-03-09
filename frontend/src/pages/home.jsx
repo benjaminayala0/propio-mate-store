@@ -136,7 +136,7 @@ export default function Home() {
           <img
             src={slides[currentIndex].url}
             alt={slides[currentIndex].title}
-            className="w-full h-full object-contain md:object-cover duration-500 scale-100"
+            className="w-full h-full object-cover object-center duration-500 scale-100"
           />
         </div>
 
@@ -244,7 +244,7 @@ export default function Home() {
                   <img
                     src={product.imagen}
                     alt={product.nombre}
-                    className="w-full h-full object-contain md:object-cover"
+                    className="w-full h-full object-cover object-center"
                   />
                 </div>
 
@@ -291,7 +291,7 @@ export default function Home() {
             <img src={newsletterBg} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/40 pointer-events-none"></div>
 
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 relative z-10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10">
               <h2 className="text-2xl md:text-3xl text-white mb-3 font-medium">
                 Suscríbete a nuestro boletín informativo
               </h2>
