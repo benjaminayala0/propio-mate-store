@@ -2,6 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+
 // Layout principal
 import MainLayout from "./layout/MainLayout";
 
@@ -81,6 +84,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </Routes>
       </BrowserRouter>
     </CartProvider>
-
+    <Analytics />
+    <SpeedInsights />
   </React.StrictMode>
 );
