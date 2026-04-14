@@ -35,6 +35,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     {/* ENVOLVEMOS TODA LA APP EN CARTPROVIDER */}
     <CartProvider>
       <BrowserRouter>
+        <Analytics />
+        <SpeedInsights />
         <Routes>
 
           {/* Todas las páginas comparten el layout */}
@@ -84,7 +86,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </Routes>
       </BrowserRouter>
     </CartProvider>
-    <Analytics />
-    <SpeedInsights />
   </React.StrictMode>
 );
