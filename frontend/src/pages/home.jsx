@@ -132,7 +132,7 @@ export default function Home() {
       <section className="max-w-6xl mx-auto px-4 pt-10 relative group">
 
         {/* CONTENEDOR DE IMAGEN RESPONSIVE */}
-        <div className="w-full aspect-square sm:aspect-video lg:h-[500px] lg:aspect-auto rounded-md overflow-hidden bg-[#f3f5f6] flex items-center justify-center relative z-0">
+        <div className="w-full aspect-[4/2.9] sm:aspect-video lg:h-[500px] lg:aspect-auto rounded-md overflow-hidden bg-[#f3f5f6] flex items-center justify-center relative z-0">
           <img
             src={slides[currentIndex].url}
             alt={slides[currentIndex].title}
@@ -287,7 +287,7 @@ export default function Home() {
       {/* NEWSLETTER */}
       <section className="w-full">
         <div className="relative max-w-6xl mx-auto px-4 pb-20">
-          <div className="rounded-md overflow-hidden h-[260px] md:h-[300px] lg:h-[320px] relative">
+          <div className="rounded-md overflow-hidden h-[360px] sm:h-[300px] lg:h-[320px] relative">
             <img src={newsletterBg} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/40 pointer-events-none"></div>
 
