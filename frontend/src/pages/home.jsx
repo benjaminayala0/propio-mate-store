@@ -132,7 +132,7 @@ export default function Home() {
       <section className="max-w-6xl mx-auto px-4 pt-10 relative group">
 
         {/* CONTENEDOR DE IMAGEN RESPONSIVE */}
-        <div className="w-full aspect-[4/2.9] sm:aspect-video lg:h-[500px] lg:aspect-auto rounded-md overflow-hidden bg-[#f3f5f6] flex items-center justify-center relative z-0">
+        <div className="w-full aspect-[4/3] md:aspect-video md:max-h-[500px] rounded-md overflow-hidden bg-[#f3f5f6] flex items-center justify-center relative z-0">
           <img
             src={slides[currentIndex].url}
             alt={slides[currentIndex].title}
